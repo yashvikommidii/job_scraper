@@ -16,6 +16,9 @@ class RemoteOKScraper(BaseScraper):
     name = "RemoteOK"
     kind = "api"
 
+    # Their free API is delayed by 24h; we do not hard-filter by time here
+    # to avoid dropping everything. The dashboard still shows "posted time"
+    # based on RemoteOK's date field.
     # Official API lives on remoteok.io; remoteok.com/api often returns 403.
     API_URL = "https://remoteok.io/api"
 
