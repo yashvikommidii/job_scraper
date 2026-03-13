@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: job-radar
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: job-radar-db
+          property: connectionString
+      - key: LINKEDIN_EMAIL
+        sync: false
+      - key: LINKEDIN_PASSWORD
+        sync: false
+      - key: SCRAPE_INTERVAL_HOURS
+        value: 6
+      - key: PORT
+        value: 8000
+      - key: CORS_ORIGINS
+        value: http://localhost:5173
+
+databases:
+  - name: job-radar-db
+    databaseName: jobradar
+    plan: free
+
