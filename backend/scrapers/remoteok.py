@@ -16,7 +16,8 @@ class RemoteOKScraper(BaseScraper):
     name = "RemoteOK"
     kind = "api"
 
-    API_URL = "https://remoteok.com/api"
+    # Official API lives on remoteok.io; remoteok.com/api often returns 403.
+    API_URL = "https://remoteok.io/api"
 
     def scrape(self, *, keywords: list[str], hours: int = 24) -> list[ScrapeJob]:
         # RemoteOK returns a list; first entry is metadata.
@@ -30,7 +31,9 @@ class RemoteOKScraper(BaseScraper):
         data: list[dict[str, Any]] = r.json()
         jobs = [x for x in data if isinstance(x, dict) and "position" in x]
 
-        cutoff = datetime.now(timezone.utc) - timedelta(hours=hours)
+        # Their free API is delayed by 24h; we do not hard-filter by time here
+        # to avoid dropping everything. The dashboard still shows "posted time"
+        # based on RemoteOK's date field.
         out: list[ScrapeJob] = []
         kw_lower = [k.lower() for k in (keywords or [])]
 
@@ -54,9 +57,6 @@ class RemoteOKScraper(BaseScraper):
                     posted_date = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
                 except Exception:
                     posted_date = None
-
-            if posted_date and posted_date < cutoff:
-                continue
 
             location = "Remote"
             is_remote = True
